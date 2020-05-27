@@ -1,0 +1,36 @@
+/* error : inexistent struct field */
+statechart sc {
+
+  types {
+    struct str {
+      a : int;
+      b : boolean;
+    }
+    
+  }
+    
+  v : str;
+  y : boolean;
+
+
+
+  functions {
+  
+  }
+  
+  
+  state s1 {
+    x : int;
+  }
+  
+  state s2 {
+  }
+  
+  transition t1 {
+    source      : sc.s1;
+    destination : sc.s2;
+      guard : y;
+      action : v.c; // error - inexistent struct field.
+  }
+
+}

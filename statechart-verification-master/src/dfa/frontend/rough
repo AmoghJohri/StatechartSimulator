@@ -1,0 +1,33 @@
+System.out.println("Performing Transition-by-Transition Simulation...");
+      System.out.println("Assuming first state in the set of states to be the start state\n");
+      State startState = null;
+      List<State> aux = statechart.states;
+      while(!aux.isEmpty())
+      {
+        startState = aux.get(0);
+        aux = startState.states;
+      }
+      System.out.println("Start State: " + startState.name);
+      if(startState.entry.getLastStatements() == null) // need to deal with the else case
+        System.out.println("No Action Performed On Entry!\n");
+      // have assumed that transitions will not have any race condition
+      List<Transition> transitions = get_Transitions(startState);
+      int counter = 1;
+      System.out.println("Main Loop");
+      State currentState = startState;
+      for(Transition t : transitions)
+      {
+        if(((BooleanConstant)t.guard).value) // checking the gaurd value
+          System.out.println("Performing Transition: " + counter + " ");
+        else
+          continue;
+        System.out.println("Transition: "+ t.getSource().name+ " -> "+ t.getDestination().name);
+        // only considering assignment statements as of now
+        InstructionStatement statement = (InstructionStatement)t.action;
+        if(statement instanceof AssignmentStatement)
+        {
+          AssignmentStatement statement_ = (AssignmentStatement)statement;
+          System.out.println(statement_.lhs);
+        }
+        
+      }

@@ -1,0 +1,16 @@
+// error - duplicate names in function declaration
+statechart sc {
+
+  v : int;
+  x : int;
+  y : boolean;
+
+  functions {
+    g() : int;
+    g(a : int) : int;
+    h(a : int, b : boolean) : int;
+  }
+  
+  state s {
+  }
+}
