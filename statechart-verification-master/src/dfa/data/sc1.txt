@@ -8,7 +8,7 @@ statechart sc {
 
   switch_status :int;
 
-  entry : {} 
+  entry : switch_status := 0;
 
   exit  : {} 
 
