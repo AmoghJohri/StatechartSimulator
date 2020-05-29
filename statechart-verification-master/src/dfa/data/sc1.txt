@@ -32,7 +32,7 @@ statechart sc {
     destination : sc.s2;
     trigger     : switch;
     guard       : true;
-    action      : switch_status := 0;
+    action      : switch_status := (1+2)*4;
   }
    transition t2 {
     source      : sc.s2;

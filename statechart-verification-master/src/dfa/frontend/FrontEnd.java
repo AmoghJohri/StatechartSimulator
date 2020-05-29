@@ -76,15 +76,81 @@ public class FrontEnd {
   private void executeStatement(Statement statement)
   {
     if(statement instanceof AssignmentStatement)
-    {
-      AssignmentStatement assignment = (AssignmentStatement)statement;
-      String variableName = assignment.lhs.getDeclaration().getFullVName();
-      map.put(variableName, assignment.rhs);
-    }
+      this.executeAssignmentStatement((AssignmentStatement)statement);
     else
     {
       return ;
     }
+  }
+
+  private void executeAssignmentStatement(AssignmentStatement assignment)
+  {
+    String variableName = assignment.lhs.getDeclaration().getFullVName();
+
+    // if the rhs is a binary expression
+    if(assignment.rhs instanceof BinaryExpression)  
+      map.put(variableName, evaluateBinaryExpression((BinaryExpression)assignment.rhs));
+    // if the rhs is a constant
+    else if(assignment.rhs instanceof IntegerConstant || assignment.rhs instanceof StringLiteral || assignment.rhs instanceof BooleanConstant)
+      map.put(variableName, assignment.rhs);
+    // still need to make provisions for unary expression
+    else
+      System.out.println("Nothing matched!\n");
+  }
+
+  private boolean isConstantExpression(Expression e) 
+  {
+    if(e instanceof BooleanConstant || e instanceof IntegerConstant || e instanceof StringLiteral)
+      return true;
+    return false;
+  }
+
+  private Expression evaluateBinaryExpression(BinaryExpression e) // takes in a binary expression and returns a constant basic type expression
+  {
+    Expression lhs = null;
+    Expression rhs = null;
+    if(isConstantExpression(e.left))
+      lhs = e.left;
+    else
+      lhs = evaluateBinaryExpression((BinaryExpression)e.left);
+    if(isConstantExpression(e.right))
+      rhs = e.right;
+    else
+      rhs = evaluateBinaryExpression((BinaryExpression)e.right);
+    
+    // for boolean 
+    if(e.operator.equals("&&") && lhs instanceof BooleanConstant)
+      return (Expression)(new BooleanConstant(((BooleanConstant)(lhs)).value && ((BooleanConstant)(rhs)).value));
+    else if(e.operator.equals("||") && lhs instanceof BooleanConstant)
+      return (Expression)(new BooleanConstant(((BooleanConstant)(lhs)).value || ((BooleanConstant)(rhs)).value));
+    // for string
+    else if(e.operator.equals("+") && lhs instanceof StringLiteral)
+      return (Expression)(new StringLiteral(((StringLiteral)(lhs)).value + ((StringLiteral)(rhs)).value));
+    // for integers which return integers
+    else if(e.operator.equals("+") && lhs instanceof IntegerConstant)
+      return (Expression)(new IntegerConstant(((IntegerConstant)(lhs)).value + ((IntegerConstant)(rhs)).value));
+    else if(e.operator.equals("-") && lhs instanceof IntegerConstant)
+      return (Expression)(new IntegerConstant(((IntegerConstant)(lhs)).value - ((IntegerConstant)(rhs)).value));
+    else if(e.operator.equals("/") && lhs instanceof IntegerConstant)
+      return (Expression)(new IntegerConstant(((IntegerConstant)(lhs)).value / ((IntegerConstant)(rhs)).value));
+    else if(e.operator.equals("*") && lhs instanceof IntegerConstant)
+      return (Expression)(new IntegerConstant(((IntegerConstant)(lhs)).value * ((IntegerConstant)(rhs)).value));
+    // for integers which return boolean
+    else if(e.operator.equals(">=") && lhs instanceof IntegerConstant)
+      return (Expression)(new BooleanConstant(((IntegerConstant)(lhs)).value >= ((IntegerConstant)(rhs)).value));
+    else if(e.operator.equals(">") && lhs instanceof IntegerConstant)
+      return (Expression)(new BooleanConstant(((IntegerConstant)(lhs)).value > ((IntegerConstant)(rhs)).value));
+    else if(e.operator.equals("<=") && lhs instanceof IntegerConstant)
+      return (Expression)(new BooleanConstant(((IntegerConstant)(lhs)).value <= ((IntegerConstant)(rhs)).value));
+    else if(e.operator.equals("<") && lhs instanceof IntegerConstant)
+      return (Expression)(new BooleanConstant(((IntegerConstant)(lhs)).value < ((IntegerConstant)(rhs)).value));
+    else if(e.operator.equals("=") && lhs instanceof IntegerConstant)
+      return (Expression)(new BooleanConstant(((IntegerConstant)(lhs)).value == ((IntegerConstant)(rhs)).value));
+    else if(e.operator.equals("!=") && lhs instanceof IntegerConstant)
+      return (Expression)(new BooleanConstant(((IntegerConstant)(lhs)).value != ((IntegerConstant)(rhs)).value));
+    else  
+      return null;
+    
   }
   
   // displaying all variables - just to get an idea of the state
