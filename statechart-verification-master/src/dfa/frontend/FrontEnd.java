@@ -93,6 +93,8 @@ public class FrontEnd {
     // if the rhs is a constant
     else if(assignment.rhs instanceof IntegerConstant || assignment.rhs instanceof StringLiteral || assignment.rhs instanceof BooleanConstant)
       map.put(variableName, assignment.rhs);
+    else if(assignment.rhs instanceof Name)
+      map.put(variableName, map.get(((Name)assignment.rhs).getDeclaration().getFullVName()));
     // still need to make provisions for unary expression
     else
       System.out.println("Nothing matched!\n");
@@ -111,10 +113,14 @@ public class FrontEnd {
     Expression rhs = null;
     if(isConstantExpression(e.left))
       lhs = e.left;
+    else if(e.left instanceof Name)
+      lhs =  map.get(((Name)e.left).getDeclaration().getFullVName());
     else
       lhs = evaluateBinaryExpression((BinaryExpression)e.left);
     if(isConstantExpression(e.right))
       rhs = e.right;
+    else if(e.right instanceof Name)
+      rhs = map.get(((Name)e.right).getDeclaration().getFullVName());
     else
       rhs = evaluateBinaryExpression((BinaryExpression)e.right);
     
