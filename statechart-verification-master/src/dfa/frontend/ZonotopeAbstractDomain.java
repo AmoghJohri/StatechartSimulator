@@ -181,7 +181,7 @@ public class ZonotopeAbstractDomain
         }
         else if(e instanceof Name)
         {
-            val = (ArrayList<Float>)abstractDomain.get(((Name)e).getDeclaration().getFullVName()));
+            val = (ArrayList<Float>)abstractDomain.get(((Name)e).getDeclaration().getFullVName());
         }
         else // assuming the third type has to be a binary expression
             val = evaluateBinaryExpression((BinaryExpression) e);
