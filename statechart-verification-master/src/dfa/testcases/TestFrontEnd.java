@@ -20,6 +20,7 @@ import java_cup.runtime.Symbol;
 import frontend.FrontEnd;
 import frontend.Parser;
 import frontend.Typechecker;
+import frontend.ZonotopeAbstractDomain;
 
 import ast.State;
 import ast.Statechart;
@@ -40,7 +41,7 @@ public class TestFrontEnd {
     Typechecker typechecker;
 
     Statechart statechart = null;
-    String input = "data/sc1.txt";
+    String input = "data/sc6.txt";
     // String input = "data/s24.txt";
     // String input = "data/curfew1.txt";
     try {
