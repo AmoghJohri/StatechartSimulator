@@ -52,7 +52,9 @@ public class FrontEnd {
   private void populate()
   {
     for(Declaration d : this.statechart.declarations)
+    {
       map.put(d.getFullVName(), null);
+    }
     
   }
   // gets the atomic-state (initial state) for any state up the heirarchy and executes all the entry statements in the process
@@ -183,7 +185,8 @@ public class FrontEnd {
       return (Expression)(new IntegerConstant(((IntegerConstant)(lhs)).value + ((IntegerConstant)(rhs)).value));
     else if(e.operator.equals("-") && lhs instanceof IntegerConstant)
       return (Expression)(new IntegerConstant(((IntegerConstant)(lhs)).value - ((IntegerConstant)(rhs)).value));
-    else if(e.operator.equals("/") && lhs instanceof IntegerConstant)
+    // this should rarely ever occur as we need to make sure we are dealing with integers
+      else if(e.operator.equals("/") && lhs instanceof IntegerConstant)
       return (Expression)(new IntegerConstant(((IntegerConstant)(lhs)).value / ((IntegerConstant)(rhs)).value));
     else if(e.operator.equals("*") && lhs instanceof IntegerConstant)
       return (Expression)(new IntegerConstant(((IntegerConstant)(lhs)).value * ((IntegerConstant)(rhs)).value));
@@ -307,6 +310,7 @@ public class FrontEnd {
       curr = getAtomicState(curr); // gets to the state where from where the execution begins
 
       input.nextLine();
+      System.out.println("After " + counter + " transition/transitions :-");
       System.out.println("State: " + curr.getFullName());
       System.out.println("Map: ");
       displayMap();
@@ -324,6 +328,7 @@ public class FrontEnd {
           }
         }
       }
+      counter ++;
     }
    }
   catch (Exception e)
