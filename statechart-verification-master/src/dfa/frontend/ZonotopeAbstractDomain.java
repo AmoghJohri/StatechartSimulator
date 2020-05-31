@@ -20,6 +20,7 @@ public class ZonotopeAbstractDomain
 
     // maps each variable to its abstract value
     private Map<String, List<Float>> abstractDomain = new HashMap<String, List<Float>>();
+    private int n = 1; // number of noise terms + 1
 
     ZonotopeAbstractDomain(State s, Map<String, Expression> map)
     {
@@ -43,6 +44,20 @@ public class ZonotopeAbstractDomain
         // there can be assignments, conditionals, loops and expressions
         listOfInstructions.add(s.entry);
         listOfInstructions.add(s.exit);
+        simulate();
+    }
+
+    private void simulate()
+    {
+        for(Statement s : listOfInstructions)
+        {
+            executeInstruction(s);
+        }
+        for(String name : abstractDomain.keySet())
+        {
+            System.out.println("Variabel Name: " + name);
+            System.out.println("Variable Interval: [" + get_interval(abstractDomain.get(name)).get(0) + " , " + get_interval(abstractDomain.get(name)).get(1) + "]");
+        }   
     }
 
     // takes the zonotope domain value and returns the interval
@@ -51,8 +66,14 @@ public class ZonotopeAbstractDomain
         float centralValue = l.get(0);
         float lhs = centralValue;
         float rhs = centralValue;
+        int tag = 0;
         for(Float f : l)
         {
+            if(tag == 0)
+            {
+                tag = 1;
+                continue;
+            }
             lhs = lhs - Math.abs(f);
             rhs = rhs + Math.abs(f);
         }
@@ -69,11 +90,47 @@ public class ZonotopeAbstractDomain
         {
             List<Statement> st_list = ((StatementList)s).getStatements();
             for(Statement st : st_list)
+            {
                 executeInstruction(st);
+            }
         }
         else // here we have an atomic statement
         {
+            if(s instanceof AssignmentStatement)
+                this.executeAssignmentInstruction((AssignmentStatement)s);
+            else if(s instanceof IfStatement)
+                this.executeConditionalInstruction((IfStatement)s);
+        }
+    }
 
+    private void executeConditionalInstruction(IfStatement s)
+    {
+        Map<String, List<Float>> abstractDomainCopy = new HashMap<>(abstractDomain);
+        executeInstruction(s.then_body);
+        Map<String, List<Float>> mapIfBlock = new HashMap<>(abstractDomain);
+        abstractDomain = new HashMap<>(abstractDomainCopy);
+        executeInstruction(s.else_body);
+        Map<String, List<Float>> mapElseBlock = new HashMap<>(abstractDomain);
+        abstractDomain = new HashMap<>(abstractDomainCopy);
+        for(String name : mapIfBlock.keySet())
+        {
+            if(mapIfBlock.get(name).equals(mapElseBlock.get(name)))
+                continue;
+            else
+            {
+                float rhs = Float.max(get_interval(mapIfBlock.get(name)).get(1), get_interval(mapElseBlock.get(name)).get(1));
+                float lhs = Float.min(get_interval(mapIfBlock.get(name)).get(0), get_interval(mapElseBlock.get(name)).get(0));
+                n = n + 1;
+                float centralValue = (rhs + lhs)/2;
+                float noise        = rhs - centralValue;
+                List<Float> out = new ArrayList<Float>();
+                for(int i = 0; i < n; i++)
+                    out.add(((Integer)0).floatValue());
+                out.set(0, centralValue);
+                out.set(out.size()-1, noise);
+                abstractDomain.put(name, out);
+                
+            }
         }
     }
 
@@ -88,6 +145,8 @@ public class ZonotopeAbstractDomain
         if(e instanceof IntegerConstant)
         {
             val.add((((Integer)((IntegerConstant)e).value).floatValue()));
+            for(int i = 1; i < n; i++)
+                val.add((((Integer)(0)).floatValue()));
         }
         else if(e instanceof Name)
         {
@@ -117,11 +176,8 @@ public class ZonotopeAbstractDomain
             while(i < lhs.size() && i < rhs.size())
             {
                 val.add(lhs.get(i) + rhs.get(i));
+                i++;
             }
-            for(;i < lhs.size();i++)
-                val.add(lhs.get(i));
-            for(;i < rhs.size();i++)
-                val.add(rhs.get(i));
         }
         else if(e.operator.equals("-"))
         {
@@ -129,11 +185,8 @@ public class ZonotopeAbstractDomain
             while(i < lhs.size() && i < rhs.size())
             {
                 val.add(lhs.get(i) - rhs.get(i));
+                i ++;
             }
-            for(;i < lhs.size();i++)
-                val.add(lhs.get(i));
-            for(;i < rhs.size();i++)
-                val.add(-1*rhs.get(i));
         }
         else if(e.operator.equals("*"))
         {
@@ -149,16 +202,9 @@ public class ZonotopeAbstractDomain
             while(i < lhs.size() && i < rhs.size())
             {
                 val.set(i, lhs.get(0)*rhs.get(i) + rhs.get(0)*lhs.get(i));
+                i++;
             }
-            for(; i < lhs.size(); i++)
-                val.set(i, lhs.get(i)*rhs.get(0));
-            for(; i < rhs.size(); i++)
-                val.set(i, rhs.get(i)*lhs.get(0));
             float aux2 = 0;
-            for(i = lhs.size(); i < rhs.size(); i++)  
-                lhs.add(((Integer)0).floatValue());
-            for(i = rhs.size(); i < lhs.size(); i++)  
-                rhs.add(((Integer)0).floatValue());
             for(i = 1; i < Integer.max(lhs.size(), rhs.size()); i++)
             {
                 for(int j = i + 1; j < Integer.max(lhs.size(), rhs.size()); j++)
@@ -184,7 +230,9 @@ public class ZonotopeAbstractDomain
             val = (ArrayList<Float>)abstractDomain.get(((Name)e).getDeclaration().getFullVName());
         }
         else // assuming the third type has to be a binary expression
+        {
             val = evaluateBinaryExpression((BinaryExpression) e);
+        }
         return val;
     }
 
