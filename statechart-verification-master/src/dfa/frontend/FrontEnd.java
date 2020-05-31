@@ -308,12 +308,18 @@ public class FrontEnd {
     while(true)
     {
       curr = getAtomicState(curr); // gets to the state where from where the execution begins
+      System.out.println("+--------------------------------------------------+");
+      System.out.println("Initial State Map: ");
+      displayMap();
+      System.out.println();
+
+      System.out.println("Static Analysis: ");
+      new ZonotopeAbstractDomain(curr, map); // - uncomment this to run the numerical static analyzer
 
       input.nextLine();
       System.out.println("After " + counter + " transition/transitions :-");
       System.out.println("State: " + curr.getFullName());
       System.out.println("Map: ");
-      displayMap();
 
       for(Transition t : transitions) // sequentially executing very transition (only considering the scenarion where the transition is present in the parent and transition occurs in its child states)
       {
@@ -322,6 +328,9 @@ public class FrontEnd {
           if(((BooleanConstant)evaluateExpression(t.guard)).value) // this needs to be evaluated, as of now assuming it to be a BooleanConstant value
           {
             executeStatement(curr.exit);
+            System.out.println("Final State Map: ");
+            displayMap();
+            System.out.println("+--------------------------------------------------+");
             executeStatement(t.action);
             curr = t.getDestination();
             break;
