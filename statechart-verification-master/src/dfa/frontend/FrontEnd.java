@@ -44,12 +44,10 @@ public class FrontEnd {
     }
 
   }
-
   // pasrser
   public Parser getParser() {
     return this.parser;
   }
-
   // populate map, all variables are by default bound to null
   private void populate()
   {
@@ -57,7 +55,6 @@ public class FrontEnd {
       map.put(d.getFullVName(), null);
     
   }
-
   // gets the atomic-state (initial state) for any state up the heirarchy and executes all the entry statements in the process
   private State getAtomicState(State state) throws Exception
   {
@@ -90,26 +87,46 @@ public class FrontEnd {
     {
       List<Statement> st_list = ((StatementList)statement).getStatements();
       for(Statement st : st_list)
-        executeStatementList(statement);
+        executeStatementList(st);
     }
-    // else, the statement is a single statement
-    try {
-    executeStatement(statement); }
-    catch (Exception e)
+    else 
     {
-      System.out.println("Execute Statement inside executeStatementList failed!\n");
+      try 
+      {
+        executeStatement(statement); 
+      }
+      catch (Exception e)
+      {
+        System.out.println("Execute Statement inside executeStatementList failed!\n");
+      }
     }
   }
   // as of now only executes single-assignment-statement
   private void executeStatement(Statement statement) throws Exception 
   {
-    try {
-    if(statement instanceof AssignmentStatement)
-      this.executeAssignmentStatement((AssignmentStatement)statement);
-    else if(statement instanceof IfStatement)
-      this.executeConditionalStatement((IfStatement)statement);
-    else 
-      return ;
+    try 
+    {
+      if(statement instanceof StatementList)
+        this.executeStatementList(statement);
+      else if(statement instanceof AssignmentStatement)
+        this.executeAssignmentStatement((AssignmentStatement)statement);
+      else if(statement instanceof IfStatement)
+        this.executeConditionalStatement((IfStatement)statement);
+      else if(statement instanceof WhileStatement)
+        this.executeWhileStatement((WhileStatement)statement);
+      else if(statement instanceof ExpressionStatement)
+        this.evaluateExpression(((ExpressionStatement)statement).expression);
+      // I still do not completely understand what the next 2 statements do, right now the behavior is defined by my rudimentary understanding
+      else if(statement instanceof SkipStatement) 
+        return ;
+      else if(statement instanceof HaltStatement)
+        System.exit(0);
+      else
+      {
+        System.out.println("The Statement Type Could Not Be Identified!\n");
+        System.out.println(statement.getClass());
+        return ;
+      }
     }
     catch (Exception e)
     {
@@ -190,30 +207,61 @@ public class FrontEnd {
   // adding conditional
   private void executeConditionalStatement(IfStatement c) throws Exception
   {
-    try {
+    try 
+    {
     // the condition would either be a straight-forward constant (although it would not make sense to have it at all then) or a binary expression
-    if(c.condition instanceof BooleanConstant)
-    {
-      if(((BooleanConstant)c.condition).value)
-        executeStatement(c.then_body);
-      else
-        executeStatement(c.else_body);
-    }
-    else if(c.condition instanceof BinaryExpression)
-    {
-      Expression e = evaluateBinaryExpression((BinaryExpression)c.condition);
-      if(((BooleanConstant)e).value)
-        executeStatement(c.then_body);
-      else
-        executeStatement(c.else_body);
-    }
+      if(c.condition instanceof BooleanConstant)
+      {
+        if(((BooleanConstant)c.condition).value)
+          executeStatement(c.then_body);
+        else
+          executeStatement(c.else_body);
+      }
+      else if(c.condition instanceof BinaryExpression)
+      {
+        Expression e = evaluateBinaryExpression((BinaryExpression)c.condition);
+        if(((BooleanConstant)e).value)
+          executeStatement(c.then_body);
+        else
+          executeStatement(c.else_body);
+      }
+      
     }
     catch (Exception e)
     {
-      System.out.println("executeConditionalStatement Failed!\n");
+      System.out.println("Execute Statement Failed Inside ExecuteConditionalStatement\n");
     }
   }
   // evaluate expression - I am not sure on how much we need this
+  private void executeWhileStatement(WhileStatement w) throws Exception
+  {
+    // the condition would either be a straight-forward constant (in an infinite loop like scenarios) or a binary expression
+    try
+    {
+      if(w.condition instanceof BooleanConstant)
+      {
+        if(((BooleanConstant)w.condition).value)
+        {
+          executeStatement(w.body);
+          executeStatement(w);
+        }
+      }
+      else if(w.condition instanceof BinaryExpression)
+      {
+        Expression e = evaluateBinaryExpression((BinaryExpression)w.condition);
+        if(((BooleanConstant)e).value)
+        {
+          executeStatement(w.body);
+          executeStatement(w);
+        }
+      }
+          return ;
+    }
+    catch (Exception e)
+    {
+      System.out.println("Execute Statement Failed Inside ExecuteWhileStatement\n");
+    }
+  } 
   private Expression evaluateExpression(Expression e) throws Exception
   {
     try {
@@ -231,7 +279,6 @@ public class FrontEnd {
     }
     return null; // the execution should not get to here
   }
-
   // displaying all variables - just to get an idea of the state
   private void displayMap()
   {
