@@ -23,7 +23,7 @@ public class FrontEnd {
 
   // necessary for simulator
   private Statechart statechart = null;
-  Map<String,Expression> map = new HashMap<String,Expression>();//Creating a HashMap for the variable bindings, every variable is identified with its fullVName which is unique to it
+  static Map<String,Expression> map = new HashMap<String,Expression>();//Creating a HashMap for the variable bindings, every variable is identified with its fullVName which is unique to it
 
 
   // constructors
@@ -116,8 +116,10 @@ public class FrontEnd {
         this.executeConditionalStatement((IfStatement)statement);
       else if(statement instanceof WhileStatement)
         this.executeWhileStatement((WhileStatement)statement);
-      else if(statement instanceof ExpressionStatement)
-        this.evaluateExpression(((ExpressionStatement)statement).expression);
+      else if(statement instanceof ExpressionStatement){
+        //this.evaluateExpression(((ExpressionStatement)statement).expression);
+        EvaluateExpression.evaluate(((ExpressionStatement)statement).expression);
+      }
       // I still do not completely understand what the next 2 statements do, right now the behavior is defined by my rudimentary understanding
       else if(statement instanceof SkipStatement) 
         return ;
@@ -140,7 +142,8 @@ public class FrontEnd {
   {
     try {
     String variableName = assignment.lhs.getDeclaration().getFullVName();
-    map.put(variableName, evaluateExpression(assignment.rhs));
+    //map.put(variableName, evaluateExpression(assignment.rhs));
+    map.put(variableName, EvaluateExpression.evaluate(assignment.rhs));
     }
     catch (Exception exc)
     {
@@ -148,65 +151,13 @@ public class FrontEnd {
     }
   }
   // takes an epression and asserts whether it is of a constant type or not
-  private boolean isConstantExpression(Expression e) 
+  static boolean isConstantExpression(Expression e) 
   {
     if(e instanceof BooleanConstant || e instanceof IntegerConstant || e instanceof StringLiteral)
       return true;
     return false;
   }
-  // evaluation for binary expressions, takes a binary expression and returns an Expression with a constant type (Integer, String or Bool)
-  private Expression evaluateBinaryExpression(BinaryExpression e)
-  {
-    Expression lhs = null;
-    Expression rhs = null;
-    if(isConstantExpression(e.left))
-      lhs = e.left;
-    else if(e.left instanceof Name)
-      lhs =  map.get(((Name)e.left).getDeclaration().getFullVName());
-    else
-      lhs = evaluateBinaryExpression((BinaryExpression)e.left);
-    if(isConstantExpression(e.right))
-      rhs = e.right;
-    else if(e.right instanceof Name)
-      rhs = map.get(((Name)e.right).getDeclaration().getFullVName());
-    else
-      rhs = evaluateBinaryExpression((BinaryExpression)e.right);
-    
-    // for boolean 
-    if(e.operator.equals("&&") && lhs instanceof BooleanConstant)
-      return (Expression)(new BooleanConstant(((BooleanConstant)(lhs)).value && ((BooleanConstant)(rhs)).value));
-    else if(e.operator.equals("||") && lhs instanceof BooleanConstant)
-      return (Expression)(new BooleanConstant(((BooleanConstant)(lhs)).value || ((BooleanConstant)(rhs)).value));
-    // for string
-    else if(e.operator.equals("+") && lhs instanceof StringLiteral)
-      return (Expression)(new StringLiteral(((StringLiteral)(lhs)).value + ((StringLiteral)(rhs)).value));
-    // for integers which return integers
-    else if(e.operator.equals("+") && lhs instanceof IntegerConstant)
-      return (Expression)(new IntegerConstant(((IntegerConstant)(lhs)).value + ((IntegerConstant)(rhs)).value));
-    else if(e.operator.equals("-") && lhs instanceof IntegerConstant)
-      return (Expression)(new IntegerConstant(((IntegerConstant)(lhs)).value - ((IntegerConstant)(rhs)).value));
-    // this should rarely ever occur as we need to make sure we are dealing with integers
-      else if(e.operator.equals("/") && lhs instanceof IntegerConstant)
-      return (Expression)(new IntegerConstant(((IntegerConstant)(lhs)).value / ((IntegerConstant)(rhs)).value));
-    else if(e.operator.equals("*") && lhs instanceof IntegerConstant)
-      return (Expression)(new IntegerConstant(((IntegerConstant)(lhs)).value * ((IntegerConstant)(rhs)).value));
-    // for integers which return boolean
-    else if(e.operator.equals(">=") && lhs instanceof IntegerConstant)
-      return (Expression)(new BooleanConstant(((IntegerConstant)(lhs)).value >= ((IntegerConstant)(rhs)).value));
-    else if(e.operator.equals(">") && lhs instanceof IntegerConstant)
-      return (Expression)(new BooleanConstant(((IntegerConstant)(lhs)).value > ((IntegerConstant)(rhs)).value));
-    else if(e.operator.equals("<=") && lhs instanceof IntegerConstant)
-      return (Expression)(new BooleanConstant(((IntegerConstant)(lhs)).value <= ((IntegerConstant)(rhs)).value));
-    else if(e.operator.equals("<") && lhs instanceof IntegerConstant)
-      return (Expression)(new BooleanConstant(((IntegerConstant)(lhs)).value < ((IntegerConstant)(rhs)).value));
-    else if(e.operator.equals("=") && lhs instanceof IntegerConstant)
-      return (Expression)(new BooleanConstant(((IntegerConstant)(lhs)).value == ((IntegerConstant)(rhs)).value));
-    else if(e.operator.equals("!=") && lhs instanceof IntegerConstant)
-      return (Expression)(new BooleanConstant(((IntegerConstant)(lhs)).value != ((IntegerConstant)(rhs)).value));
-    else  
-      return null;
-    
-  }
+  
   // adding conditional
   private void executeConditionalStatement(IfStatement c) throws Exception
   {
@@ -222,7 +173,8 @@ public class FrontEnd {
       }
       else if(c.condition instanceof BinaryExpression)
       {
-        Expression e = evaluateBinaryExpression((BinaryExpression)c.condition);
+        //Expression e = evaluateBinaryExpression((BinaryExpression)c.condition);
+        Expression e = EvaluateExpression.evaluate((BinaryExpression)c.condition);
         if(((BooleanConstant)e).value)
           executeStatement(c.then_body);
         else
@@ -251,7 +203,8 @@ public class FrontEnd {
       }
       else if(w.condition instanceof BinaryExpression)
       {
-        Expression e = evaluateBinaryExpression((BinaryExpression)w.condition);
+        //Expression e = evaluateBinaryExpression((BinaryExpression)w.condition);
+        Expression e = EvaluateExpression.evaluate((BinaryExpression)w.condition);
         if(((BooleanConstant)e).value)
         {
           executeStatement(w.body);
@@ -265,23 +218,7 @@ public class FrontEnd {
       System.out.println("Execute Statement Failed Inside ExecuteWhileStatement\n");
     }
   } 
-  private Expression evaluateExpression(Expression e) throws Exception
-  {
-    try {
-      if(e instanceof BinaryExpression)
-        return evaluateBinaryExpression((BinaryExpression)e);
-      else if(e instanceof Name)
-        return map.get(((Name)e).getDeclaration().getFullVName());
-      else if(e instanceof BooleanConstant || e instanceof IntegerConstant || e instanceof StringLiteral)
-        return e;
-    }
-    catch (Exception exc)
-    {
-      System.out.println("Unknown Type of Expression!\n");
-      return null;
-    }
-    return null; // the execution should not get to here
-  }
+
   // displaying all variables - just to get an idea of the state
   private void displayMap()
   {
@@ -325,7 +262,8 @@ public class FrontEnd {
       {
         if(t.getSource() == curr)
         {
-          if(((BooleanConstant)evaluateExpression(t.guard)).value) // this needs to be evaluated, as of now assuming it to be a BooleanConstant value
+          //if(((BooleanConstant)evaluateExpression(t.guard)).value) // this needs to be evaluated, as of now assuming it to be a BooleanConstant value
+          if(((BooleanConstant)EvaluateExpression.evaluate(t.guard)).value)
           {
             executeStatement(curr.exit);
             System.out.println("Final State Map: ");
@@ -346,3 +284,5 @@ public class FrontEnd {
   }
 }
 }
+//https://github.com/AmoghJohri/StatechartSimulator.git
+
