@@ -23,7 +23,7 @@ public class FrontEnd {
 
   // necessary for simulator
   private Statechart statechart = null;
-  static Map<String,Expression> map = new HashMap<String,Expression>();//Creating a HashMap for the variable bindings, every variable is identified with its fullVName which is unique to it
+  static Map<Declaration, Expression> map = new HashMap<Declaration, Expression>(); //Creating a HashMap for the variable bindings, every variable is identified with its fullVName which is unique to it
 
 
   // constructors
@@ -53,7 +53,7 @@ public class FrontEnd {
   {
     for(Declaration d : this.statechart.declarations)
     {
-      map.put(d.getFullVName(), null);
+      map.put(d, null);
     }
     
   }
@@ -141,9 +141,10 @@ public class FrontEnd {
   private void executeAssignmentStatement(AssignmentStatement assignment) throws Exception
   {
     try {
-    String variableName = assignment.lhs.getDeclaration().getFullVName();
+    Declaration variableDeclaration = assignment.lhs.getDeclaration();
     //map.put(variableName, evaluateExpression(assignment.rhs));
-    map.put(variableName, EvaluateExpression.evaluate(assignment.rhs));
+    map.put(variableDeclaration, EvaluateExpression.evaluate(assignment.rhs));
+
     }
     catch (Exception exc)
     {
@@ -222,8 +223,8 @@ public class FrontEnd {
   // displaying all variables - just to get an idea of the state
   private void displayMap()
   {
-    for(Map.Entry<String, Expression> m : map.entrySet()){    
-      System.out.println(m.getKey()+": "+m.getValue());    
+    for(Map.Entry<Declaration, Expression> m : map.entrySet()){    
+      System.out.println(m.getKey().getFullVName()+": "+m.getValue());    
      }  
   }
   
@@ -250,8 +251,8 @@ public class FrontEnd {
       displayMap();
       System.out.println();
 
-      System.out.println("Static Analysis: ");
-      new ZonotopeAbstractDomain(curr, map); // - uncomment this to run the numerical static analyzer
+      // System.out.println("Static Analysis: ");
+      // new ZonotopeAbstractDomain(curr, map); // - uncomment this to run the numerical static analyzer
 
       input.nextLine();
       System.out.println("After " + counter + " transition/transitions :-");

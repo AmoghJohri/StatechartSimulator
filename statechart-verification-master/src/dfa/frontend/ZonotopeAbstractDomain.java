@@ -16,27 +16,27 @@ public class ZonotopeAbstractDomain
     private List<Statement> listOfInstructions = new ArrayList<Statement>();
     
     // all the required variables are initialized here
-    private Map<String, Expression> initVariables = new HashMap<String, Expression>();
+    private Map<Declaration, Expression> initVariables = new HashMap<Declaration, Expression>();
 
     // maps each variable to its abstract value
-    private Map<String, List<Float>> abstractDomain = new HashMap<String, List<Float>>();
+    private Map<Declaration, List<Float>> abstractDomain = new HashMap<Declaration, List<Float>>();
     private int n = 1; // number of noise terms + 1
 
-    ZonotopeAbstractDomain(State s, Map<String, Expression> map)
+    ZonotopeAbstractDomain(State s, Map<Declaration, Expression> map)
     {
         for(Declaration d : s.getEnvironment().getAllDeclarations())
         {
-            if(map.get(d.getFullVName()) != null)
+            if(map.get(d) != null)
             {
                 // as right now the only numerical type is int
                 if(("int").equals(d.typeName.toString()))
                 {
                     ArrayList<Float> centralValue = new ArrayList<Float>();
-                    initVariables.put(d.getFullVName(), map.get(d.getFullVName()));
-                    if(map.get(d.getFullVName()) instanceof IntegerConstant)
+                    initVariables.put(d, map.get(d));
+                    if(map.get(d) instanceof IntegerConstant)
                     {
-                        centralValue.add(((Integer)(((IntegerConstant)(map.get(d.getFullVName()))).value)).floatValue());
-                        abstractDomain.put(d.getFullVName(), centralValue);
+                        centralValue.add(((Integer)(((IntegerConstant)(map.get(d))).value)).floatValue());
+                        abstractDomain.put(d, centralValue);
                     }
                 }
             }     
@@ -53,10 +53,10 @@ public class ZonotopeAbstractDomain
         {
             executeInstruction(s);
         }
-        for(String name : abstractDomain.keySet())
+        for(Declaration decl : abstractDomain.keySet())
         {
-            System.out.println("Variabel Name: " + name);
-            System.out.println("Variable Interval: [" + get_interval(abstractDomain.get(name)).get(0) + " , " + get_interval(abstractDomain.get(name)).get(1) + "]");
+            System.out.println("Variabel Name: " + decl.getFullVName());
+            System.out.println("Variable Interval: [" + get_interval(abstractDomain.get(decl)).get(0) + " , " + get_interval(abstractDomain.get(decl)).get(1) + "]");
         }   
     }
 
@@ -105,21 +105,21 @@ public class ZonotopeAbstractDomain
 
     private void executeConditionalInstruction(IfStatement s)
     {
-        Map<String, List<Float>> abstractDomainCopy = new HashMap<>(abstractDomain);
+        Map<Declaration, List<Float>> abstractDomainCopy = new HashMap<>(abstractDomain);
         executeInstruction(s.then_body);
-        Map<String, List<Float>> mapIfBlock = new HashMap<>(abstractDomain);
+        Map<Declaration, List<Float>> mapIfBlock = new HashMap<>(abstractDomain);
         abstractDomain = new HashMap<>(abstractDomainCopy);
         executeInstruction(s.else_body);
-        Map<String, List<Float>> mapElseBlock = new HashMap<>(abstractDomain);
+        Map<Declaration, List<Float>> mapElseBlock = new HashMap<>(abstractDomain);
         abstractDomain = new HashMap<>(abstractDomainCopy);
-        for(String name : mapIfBlock.keySet())
+        for(Declaration decl : mapIfBlock.keySet())
         {
-            if(mapIfBlock.get(name).equals(mapElseBlock.get(name)))
+            if(mapIfBlock.get(decl).equals(mapElseBlock.get(decl)))
                 continue;
             else
             {
-                float rhs = Float.max(get_interval(mapIfBlock.get(name)).get(1), get_interval(mapElseBlock.get(name)).get(1));
-                float lhs = Float.min(get_interval(mapIfBlock.get(name)).get(0), get_interval(mapElseBlock.get(name)).get(0));
+                float rhs = Float.max(get_interval(mapIfBlock.get(decl)).get(1), get_interval(mapElseBlock.get(decl)).get(1));
+                float lhs = Float.min(get_interval(mapIfBlock.get(decl)).get(0), get_interval(mapElseBlock.get(decl)).get(0));
                 n = n + 1;
                 float centralValue = (rhs + lhs)/2;
                 float noise        = rhs - centralValue;
@@ -128,7 +128,7 @@ public class ZonotopeAbstractDomain
                     out.add(((Integer)0).floatValue());
                 out.set(0, centralValue);
                 out.set(out.size()-1, noise);
-                abstractDomain.put(name, out);
+                abstractDomain.put(decl, out);
                 
             }
         }
@@ -136,7 +136,7 @@ public class ZonotopeAbstractDomain
 
     private void executeAssignmentInstruction(AssignmentStatement s)
     {
-        abstractDomain.put((s.lhs).getDeclaration().getFullVName(), evaluateExpression(s.rhs));
+        abstractDomain.put((s.lhs).getDeclaration(), evaluateExpression(s.rhs));
     }
 
     private List<Float> getAbstractValue(Expression e)
@@ -150,7 +150,7 @@ public class ZonotopeAbstractDomain
         }
         else if(e instanceof Name)
         {
-            val = abstractDomain.get(((Name)e).getDeclaration().getFullVName());
+            val = abstractDomain.get(((Name)e).getDeclaration());
         }
         return val;
     }
@@ -227,7 +227,7 @@ public class ZonotopeAbstractDomain
         }
         else if(e instanceof Name)
         {
-            val = (ArrayList<Float>)abstractDomain.get(((Name)e).getDeclaration().getFullVName());
+            val = (ArrayList<Float>)abstractDomain.get(((Name)e).getDeclaration());
         }
         else // assuming the third type has to be a binary expression
         {
