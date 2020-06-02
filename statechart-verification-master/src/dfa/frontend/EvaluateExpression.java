@@ -25,13 +25,13 @@ public class EvaluateExpression{
     public static Expression evaluateBinaryExpression(BinaryExpression e){
         Expression lhs = null;
         Expression rhs = null;
-        if(FrontEnd.isConstantExpression(e.left))
+        if(isConstantExpression(e.left))
           lhs = e.left;
         else if(e.left instanceof Name)
           lhs =  FrontEnd.map.get(((Name)e.left).getDeclaration());
         else
           lhs = evaluateBinaryExpression((BinaryExpression)e.left);
-        if(FrontEnd.isConstantExpression(e.right))
+        if(isConstantExpression(e.right))
           rhs = e.right;
         else if(e.right instanceof Name)
           rhs = FrontEnd.map.get(((Name)e.right).getDeclaration());
@@ -71,5 +71,13 @@ public class EvaluateExpression{
           return (Expression)(new BooleanConstant(((IntegerConstant)(lhs)).value != ((IntegerConstant)(rhs)).value));
         else  
           return null;
+    }
+
+    // takes an epression and asserts whether it is of a constant type or not
+    static boolean isConstantExpression(Expression e) 
+    {
+      if(e instanceof BooleanConstant || e instanceof IntegerConstant || e instanceof StringLiteral)
+        return true;
+      return false;
     }
 }
