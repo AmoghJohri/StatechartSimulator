@@ -34,7 +34,7 @@ public class ExecuteStatement
         }
         catch (Exception e)
         {
-          System.out.println("Execute Statement Failed!\n");
+          System.out.println("Execution of the following statement failed: " + statement);
         }
     }
 
@@ -47,7 +47,7 @@ public class ExecuteStatement
       }
       catch (Exception exc)
       {
-        System.out.println("Assignment Statement Failed!\n");
+        System.out.println("The following assignment statement failed: " + assignment);
       }
     }
 
@@ -68,7 +68,7 @@ public class ExecuteStatement
           }
           catch (Exception e)
           {
-            System.out.println("Execute Statement inside executeStatementList failed!\n");
+            System.out.println("Execution of the following statement list failed: " + statement);
           }
         }
     }
@@ -99,7 +99,7 @@ public class ExecuteStatement
     }
     catch (Exception e)
     {
-      System.out.println("Execute Statement Failed Inside ExecuteConditionalStatement\n");
+      System.out.println("Execution of the following conditional statement failed: " + c);
     }
   }
 
@@ -131,7 +131,7 @@ public class ExecuteStatement
     }
     catch (Exception e)
     {
-      System.out.println("Execute Statement Failed Inside ExecuteWhileStatement\n");
+      System.out.println("Execution of the following loop failed: " + w);
     }
   } 
 
