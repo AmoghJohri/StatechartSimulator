@@ -2,6 +2,7 @@ package frontend;
 
 import ast.*;
 
+/* EvaluateExpression class - Contains all the static methods required to evaluate expressions - regular or binary. */
 public class EvaluateExpression{
     public static Expression evaluate(Expression e){
         try {
@@ -22,6 +23,7 @@ public class EvaluateExpression{
         
     }
 
+    /* Implementation to evaluate binary expressions */
     public static Expression evaluateBinaryExpression(BinaryExpression e){
         Expression lhs = null;
         Expression rhs = null;

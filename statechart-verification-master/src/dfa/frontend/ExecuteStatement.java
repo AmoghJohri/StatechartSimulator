@@ -2,6 +2,7 @@ package frontend;
 import java.util.List;
 import ast.*;
 
+/* ExectueStatement class - Contains all the static methods to execute different types of statements : assignment, conditional, while-loops and expressions.*/
 public class ExecuteStatement 
 {
     public static void executeStatement(Statement statement) throws Exception 
@@ -17,7 +18,6 @@ public class ExecuteStatement
           else if(statement instanceof WhileStatement)
             executeWhileStatement((WhileStatement)statement);
           else if(statement instanceof ExpressionStatement){
-            //evaluateExpression(((ExpressionStatement)statement).expression);
             EvaluateExpression.evaluate(((ExpressionStatement)statement).expression);
           }
           // I still do not completely understand what the next 2 statements do, right now the behavior is defined by my rudimentary understanding
@@ -38,14 +38,12 @@ public class ExecuteStatement
         }
     }
 
-     // executes an assignment statement
+    /* Implementation for executing assignment statement */
     private static void executeAssignmentStatement(AssignmentStatement assignment) throws Exception
     {
       try {
       Declaration variableDeclaration = assignment.lhs.getDeclaration();
-      //map.put(variableName, evaluateExpression(assignment.rhs));
       FrontEnd.map.put(variableDeclaration, EvaluateExpression.evaluate(assignment.rhs));
-
       }
       catch (Exception exc)
       {
@@ -53,7 +51,7 @@ public class ExecuteStatement
       }
     }
 
-    // execution for a list-of-statements
+    /* Implementation for executing a list of statements */
     private static void executeStatementList(Statement statement) throws Exception
     {
         if(statement instanceof StatementList)
@@ -76,7 +74,7 @@ public class ExecuteStatement
     }
   
   
-  // adding conditional
+  /* Implementation for executing conditional statements */
   private static void executeConditionalStatement(IfStatement c) throws Exception
   {
     try 
@@ -91,7 +89,6 @@ public class ExecuteStatement
       }
       else if(c.condition instanceof BinaryExpression)
       {
-        //Expression e = evaluateBinaryExpression((BinaryExpression)c.condition);
         Expression e = EvaluateExpression.evaluate((BinaryExpression)c.condition);
         if(((BooleanConstant)e).value)
           executeStatement(c.then_body);

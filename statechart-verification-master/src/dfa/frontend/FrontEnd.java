@@ -21,16 +21,19 @@ public class FrontEnd {
 
   private final Parser parser;
 
-  // necessary for simulator
+  /* Necessary for simulator */
   private Statechart statechart = null;
-  public static Map<Declaration, Expression> map = new HashMap<Declaration, Expression>(); //Creating a HashMap for the variable bindings, every variable is identified with its fullVName which is unique to it
 
+  /* Creating a HashMap for the variable bindings, every variable is identified with its fullVName which is unique to it */
+  public static Map<Declaration, Expression> map = new HashMap<Declaration, Expression>();
 
-  // constructors
+  /* Constructors */
+  // Original constructor
   public FrontEnd(String input) throws FileNotFoundException {
     this.parser = new Parser(new Lexer(new FileReader(input)));
   }
 
+  // Constructor for the simulator
   public FrontEnd(Statechart statechart) throws Exception
   {
     this.parser = null; // for the time being
@@ -44,11 +47,14 @@ public class FrontEnd {
     }
 
   }
-  // pasrser
+
+  /* Parser */
   public Parser getParser() {
     return this.parser;
   }
-  // populate map, all variables are by default bound to null
+
+  /* Populate the created map */
+  // All variables are by default bound to null
   private void populate()
   {
     for(Declaration d : this.statechart.declarations)
@@ -58,9 +64,12 @@ public class FrontEnd {
     
   }
   
-  // gets the atomic-state (initial state) for any state up the heirarchy and executes all the entry statements in the process
+
+  // Gets the atomic-state (initial state) for any state up the hierarchy and executes all the entry statements in the process
   private State getAtomicState(State state) throws Exception
   {
+   
+  
     State init = state;
     try {
     ExecuteStatement.executeStatement(init.entry);
@@ -85,14 +94,15 @@ public class FrontEnd {
   }
   
 
-  // displaying all variables - just to get an idea of the state
+  /* Displaying all variables - just to get an idea of the state */
   private void displayMap()
   {
     for(Map.Entry<Declaration, Expression> m : map.entrySet()){    
       System.out.println(m.getKey().getFullVName()+": "+m.getValue());    
      }  
   }
-  
+
+  /* Simulator function invoked in the constructor */
   public void simulation() throws Exception
   {
     try {
