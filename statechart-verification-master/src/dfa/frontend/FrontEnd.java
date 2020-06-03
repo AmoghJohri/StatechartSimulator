@@ -135,6 +135,19 @@ public class FrontEnd {
     return false;
   }
 
+  // checking whether a state has VAR (very rudimentary methodology for an interactive experience)
+  private boolean hasVAR(State s)
+  {
+    for(Declaration d : s.declarations)
+    {
+      if(d.getFullVName().equals(s.getFullName() + ".VARIABLE")) // if the HISTORY variable exists
+      {
+        return true;
+      }
+    }
+    return false;
+  }
+
   // sets the initial state for a parent state which maintains history
   private void setCurrent(State parent, State current)
   {
@@ -222,6 +235,21 @@ public class FrontEnd {
       while(true)
       {
         curr = getAtomicState(curr); // gets to the state where from where the execution begins
+        
+        /* Very Basic as of now (For an Interactive System)*/
+        if(hasVAR(curr)) // state takes an input - as of now, only integer
+        {
+          System.out.println("\n ENTER YOUR INPUT: ");
+          int user_input = input.nextInt();
+          for(Declaration d : curr.declarations)
+          {
+            if(d.getFullVName().equals(curr.getFullName() + ".VARIABLE"))
+            {
+              map.put(d, new IntegerConstant(user_input));
+            }
+          }
+        }
+
         System.out.println("+--------------------------------------------------+");
         System.out.println("Initial State Map: ");
         displayMap();
