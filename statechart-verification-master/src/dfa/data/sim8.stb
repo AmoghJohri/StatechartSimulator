@@ -1,4 +1,4 @@
-// While loop
+// Expression Evaluation - nary expressions (NEEDS brackets)
 statechart sc {
   
   types {}
@@ -7,22 +7,29 @@ statechart sc {
     switch;
   }
 
-  a : int;
-  b : int;
+  a1 :int;
+  a2 :int;
+  b1 :int;
+  b2 :int;
+  c1 :int;
+  c2 :int;
 
   entry : {
-      a := 0;
-      b := 1;
-     }
+      a1 := 1;
+      a2 := 2;
+      b1 := 3;
+      b2 := 4;
+      c1 := 5;
+      c2 := 6;
+  }
 
   exit  : {} 
 
 
   state s1 {
+    entry : {} 
 
-    entry : {}
-
-    exit  : {}
+    exit  : {} 
 
   }
 
@@ -39,11 +46,7 @@ statechart sc {
     trigger     : switch;
     guard       : true;
     action      : {
-        while((a < 5) && (b < 16))
-        {
-            b := b * 2;
-            a := a + 1;
-        }
+        a1 := (a2 * b1) + (b2 + c1) - c2;
     }
   }
    transition t2 {
@@ -51,8 +54,6 @@ statechart sc {
     destination : sc.s1;
     trigger     : switch;
     guard       : true;
-    action      : {
-        a := a + 1;
-    }
+    action      : {}
   }
 }
