@@ -114,6 +114,10 @@ public class FrontEnd {
   private void displayMap()
   {
     for(Map.Entry<Declaration, Expression> m : map.entrySet()){    
+      if(m.getKey().getFullVName().equals(m.getKey().getState().getFullName() + ".VARIABLE"))
+        continue;
+      else if(m.getKey().getFullVName().equals(m.getKey().getState().getFullName() + ".HISTORY"))
+        continue;
       System.out.println(m.getKey().getFullVName()+": "+m.getValue());    
      }  
   }
