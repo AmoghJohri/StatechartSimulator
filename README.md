@@ -14,8 +14,8 @@ The simulator that we build will assume that the statechart designed is syntacti
 
 **_Add more tasks_**
 - [x] Simulator in FrontEnd 
-- [x] ExpressionEvaluator - *done*
-- [x] StatementExecuter - *implementation is ready, class required*
+- [x] ExpressionEvaluator
+- [x] StatementExecuter
 - [ ] FunctionExecuter
 - [ ] StructExecuter
 - [ ] README writing - *in progress*
