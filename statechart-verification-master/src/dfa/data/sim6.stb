@@ -1,4 +1,5 @@
-// History tag (maintaining history)
+// Evaluates the behavior for when History is maintained
+
 statechart sc {
   
   types {}

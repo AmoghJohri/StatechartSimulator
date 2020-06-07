@@ -1,4 +1,5 @@
-// Local variables with same names
+// Evaluates the behavior for variables with same names (different scopes)
+
 statechart sc {
   
   types {}

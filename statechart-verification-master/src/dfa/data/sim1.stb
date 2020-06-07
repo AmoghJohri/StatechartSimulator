@@ -1,4 +1,4 @@
-// Simulates On-Off
+// Simulates an on-off switch
 
 statechart sc {
   

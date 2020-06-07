@@ -1,4 +1,5 @@
-// Banking System
+// Model Banking System
+
 statechart sc {
   
   types {}

@@ -1,4 +1,5 @@
-// History tag (not maintaining history)
+// Evaluates the behavior when history is not maintained (similar statechart w.r.t sim6.stb)
+
 statechart sc {
   
   types {}

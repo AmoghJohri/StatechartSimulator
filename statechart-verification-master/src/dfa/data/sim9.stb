@@ -1,4 +1,5 @@
-// Deep History
+// Evaluates the behavior for multi-level history and inter-level transitions
+
 statechart sc {
   
   types {}

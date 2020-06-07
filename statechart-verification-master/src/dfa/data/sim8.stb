@@ -1,4 +1,5 @@
-// Expression Evaluation - nary expressions (NEEDS brackets)
+// n-ary expression Evaluation - (NEEDS brackets)
+
 statechart sc {
   
   types {}

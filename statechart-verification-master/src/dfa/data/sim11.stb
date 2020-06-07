@@ -1,4 +1,5 @@
-// Check for non-determinism
+// Catches Non-Determinism in the statechart
+
 statechart sc {
   
   types {}
