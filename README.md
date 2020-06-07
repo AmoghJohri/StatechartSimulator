@@ -13,10 +13,10 @@ The simulator that we build will assume that the statechart designed is syntacti
 ## Tasks
 
 **_Add more tasks_**
-- [ ] Simulator in FrontEnd - *in progress*
+- [x] Simulator in FrontEnd 
 - [x] ExpressionEvaluator - *done*
-- [ ] StatementExecuter - *implementation is ready, class required*
+- [x] StatementExecuter - *implementation is ready, class required*
 - [ ] FunctionExecuter
 - [ ] StructExecuter
-- [ ] README writing
+- [ ] README writing - *in progress*
 
