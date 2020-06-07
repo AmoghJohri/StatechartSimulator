@@ -19,4 +19,5 @@ The simulator that we build will assume that the statechart designed is syntacti
 - [ ] FunctionExecuter
 - [ ] StructExecuter
 - [ ] README writing - *in progress*
+- [X] Writing TestCases
 
