@@ -144,7 +144,7 @@ public class FrontEnd {
   {
     for(Declaration d : s.declarations)
     {
-      if(d.getFullVName().equals(s.getFullName() + ".VARIABLE")) // if the HISTORY variable exists
+      if(d.getFullVName().equals(s.getFullName() + ".VARIABLE")) // if the VARIABLE variable exists
       {
         return true;
       }
@@ -203,16 +203,59 @@ public class FrontEnd {
         current = current.getSuperstate();
       }
       int i = path.size() - 1;
-      while(i > 1)
+      while(i > 0)
       {
         ExecuteStatement.executeStatement(path.get(i).entry);
-        i ++;
+        i --;
       }
     }
     catch (Exception e)
     {
       System.out.println("performTransition() failed for transition: " + t);
     }
+  }
+
+  // takes a state as the input and returns a valid transition (if available) with the input state as the source state
+  Transition getValidTransition(State curr) throws Exception 
+  {
+    Transition output = null;
+
+    try{
+      int i = 0;
+      ArrayList<State> currSuperStates = (ArrayList<State>)curr.getAllSuperstates();
+      for(Transition t : transitions)
+      {
+        for(State s : currSuperStates) // searching for a transition with an ancestor of the input state as the source state
+        {
+          if(t.getSource().equals(s) && ((BooleanConstant)EvaluateExpression.evaluate(t.guard)).value)
+          {
+            output = t;
+            i++; // for every transition that is valid
+          } 
+        }
+        if(t.getSource().equals(curr) && ((BooleanConstant)EvaluateExpression.evaluate(t.guard)).value) // searching for a transition with the input state as the source state
+        {
+          output = t;
+          i++;
+        }
+      }
+      if(i == 1) // if there are exactly one valid transitions
+        return output;
+      else if(i == 0) // no valid transitions out - halting
+      {
+        ExecuteStatement.executeStatement(new HaltStatement());
+      }
+      else // if there are more than one valid transitions (Non-Determinism)
+      {
+        System.out.println("Non-Determinism Detected at state: " + curr.getFullName());
+        ExecuteStatement.executeStatement(new HaltStatement());
+      }
+    }
+    catch (Exception e)
+    {
+      System.out.println("getValidTransition failed to execute halt statement!\n");
+    }
+    return output;
   }
 
   // this is the main function corresponding to the simulation
@@ -264,24 +307,15 @@ public class FrontEnd {
 
         input.nextLine(); // to break the flow into key-strokes
 
-        System.out.println("After " + counter + " transition/transitions :-");
+        System.out.println("After " + (counter+1) + " transition/transitions :-");
         System.out.println("State: " + curr.getFullName());
 
-        for(Transition t : transitions)
-        {
-          if(t.getSource().equals(curr))
-          {
-            if(((BooleanConstant)EvaluateExpression.evaluate(t.guard)).value)
-            {
-              performTransition(t);
-              System.out.println("Final State Map: ");
-              displayMap();
-              curr = t.getDestination();
-              System.out.println("+--------------------------------------------------+");
-              break;
-            }
-          }
-        }
+        Transition t = getValidTransition(curr);
+        performTransition(t);
+        System.out.println("Final State Map: ");
+        displayMap();
+        curr = t.getDestination();
+        System.out.println("+--------------------------------------------------+");
         counter ++;
       }
     }
