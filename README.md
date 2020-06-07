@@ -10,14 +10,4 @@ The simulator that we build will assume that the statechart designed is syntacti
 - The simulator that we build will exist in the directory `statechart-verification-master/src/dfa/frontend`. 
 - The simulator is basically what the user will see when its statechart is getting executed/simulated, so it's a logical choice to place it in the `frontend` directory. 
 
-## Tasks
-
-**_Add more tasks_**
-- [x] Simulator in FrontEnd 
-- [x] ExpressionEvaluator
-- [x] StatementExecuter
-- [ ] FunctionExecuter
-- [ ] StructExecuter
-- [ ] README writing - *in progress*
-- [X] Writing Test-cases
 
