@@ -1,4 +1,4 @@
-// Deep History
+// Check for non-determinism
 statechart sc {
   
   types {}
@@ -143,9 +143,16 @@ statechart sc {
         }
     }
 
-
+    transition t22222 {
+          source      : sc.s2.s22;
+          destination : sc.s2.s22.s222;
+          trigger     : switch;
+          guard       : true;
+          action      :  {}
+        }
 
   }
+
 
     transition t12122 {
           source      : sc.s1.s12.s121;

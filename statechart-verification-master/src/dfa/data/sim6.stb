@@ -87,7 +87,7 @@ statechart sc {
     action      : {}
   }
   
-  transition t22 {
+  transition t21 {
     source      : sc.s2.s22;
     destination : sc.s1;
     trigger     : switch;
